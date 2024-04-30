@@ -1,6 +1,7 @@
 package com.example.paymentservice.service;
 
 import com.example.paymentservice.entity.TransactionDetails;
+import com.example.paymentservice.model.PaymentMode;
 import com.example.paymentservice.model.PaymentRequest;
 import com.example.paymentservice.model.PaymentResponse;
 import com.example.paymentservice.repository.TransactionDetailsRepository;
@@ -57,7 +58,6 @@ public long doPayment(PaymentRequest paymentRequest) {
     transactionDetailsRepository.save(transactionDetails);
 
     log.info("Transaction Completed with Id: {}", transactionDetails.getId());
-
     return transactionDetails.getId();
 }
 
@@ -65,6 +65,19 @@ public long doPayment(PaymentRequest paymentRequest) {
 
     @Override
     public PaymentResponse getPaymentDetailsByOrderId(String orderId) {
-        return null;
+        log.info("Getting payment details for the Order Id: {}", orderId);
+        TransactionDetails transactionDetails = transactionDetailsRepository.findByOrderId(Long.valueOf(orderId));
+
+        PaymentResponse paymentResponse = PaymentResponse.builder()
+                .paymentId(transactionDetails.getId())
+                .paymentMode(PaymentMode.valueOf(transactionDetails.getPaymentMode()))
+                .paymentDate(transactionDetails.getPaymentDate())
+                .orderId(transactionDetails.getOrderId())
+                .status(transactionDetails.getPaymentStatus())
+                .amount(transactionDetails.getAmount())
+                .build();
+
+        return paymentResponse;
+
     }
 }
